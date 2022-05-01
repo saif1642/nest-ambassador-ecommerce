@@ -1,0 +1,36 @@
+# ------BACKEND SERVICE MANIFEST FOR COMBINING BACKEND WITH DATABASE AND OTHER SERVICES LIKE REDIS ETC. ------
+
+# DOCKER VERSION
+version: '3.3'
+# BACKEND SERVICE
+services:
+# BACKEND CONFIGURATION
+  backend:
+# BUILD PATH CURRENT DIRECTORY
+    build: .
+# PORT (OUTSIDE CONTAINER PORT: INSIDE CONTAINER PORT)
+    ports:
+      - 8000:3000
+# VOLUME (.:/app) => EVERY TIME ANY THING CHANGES IN APP IT REFLECTS IN DOCKER CONTAINER APP VISE VERSA.
+    volumes:
+      - .:/app
+# PREPARE db BEFORE backend 
+    depends_on:
+      - db
+# DATABASE CONFIGURATION
+  db:
+# PREDEFINED MYSQL IMAGE
+      image: mysql:5.7.22
+# ALWAYS RESTART MYSQL AS IT GETS DOWN SOMETIMES
+      restart: always
+# ENVIRONMENT VARIABLES
+      environment:
+        MYSQL_DATABASE: ambassador
+        MYSQL_USER: root
+        MYSQL_PASSWORD: root
+        MYSQL_ROOT_PASSWORD: root
+# db NEEDS VOLUMES AS IT SAVES SOME DATA FROM MYSQL CONTAINER TO PROJECT ROOT .dbdata FOLDER
+      volumes:
+        - .dbdata:/var/lib/mysql
+      ports:
+        - 33066:3306
