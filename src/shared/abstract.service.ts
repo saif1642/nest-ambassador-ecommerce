@@ -15,11 +15,10 @@ export abstract class AbstractService {
         });
       }
     
-      async find(options) {
-        return this.repository.find({
-          where: options,
-        });
-      }
+      async find(options = {}) {
+        return this.repository.find(options);
+    }
+
     
       async update(id: number, options) {
         return this.repository.update(id, options);
