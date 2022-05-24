@@ -5,10 +5,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 
 @Module({
-  imports: [
-    UserModule,
-    SharedModule
-  ],
+  imports: [UserModule, SharedModule],
   controllers: [AuthController],
   providers: [AuthService],
 })

@@ -9,6 +9,7 @@ import {
   Put,
   Req,
   Res,
+  UnauthorizedException,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -48,6 +49,7 @@ export class AuthController {
     @Body('email') email: string,
     @Body('password') password: string,
     @Res({ passthrough: true }) response: Response,
+    @Req() request: Request,
   ) {
     const user = await this.userService.findOne({ email });
 
@@ -59,8 +61,15 @@ export class AuthController {
       throw new BadRequestException('Invalid login credentials !');
     }
 
+    const adminLogin = request.path === '/api/auth/admin/login';
+
+    if (user.is_ambassador && adminLogin) {
+      throw new UnauthorizedException();
+    }
+
     const jwt = await this.jwtService.signAsync({
       id: user.id,
+      scope: !adminLogin ? 'ambassador' : 'admin',
     });
 
     response.cookie('jwt', jwt, { httpOnly: true });
