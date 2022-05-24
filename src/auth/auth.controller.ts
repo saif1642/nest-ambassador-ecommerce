@@ -25,8 +25,8 @@ export class AuthController {
     private jwtService: JwtService,
   ) {}
 
-  @Post('admin/register')
-  async register(@Body() body: RegisterDTO) {
+  @Post(['admin/register', 'ambassador/register'])
+  async register(@Body() body: RegisterDTO, @Req() request: Request) {
     const { password_confirm, ...data } = body;
 
     if (body.password !== password_confirm) {
@@ -34,15 +34,16 @@ export class AuthController {
     }
 
     const hashed = await bcrypt.hash(body.password, 12);
+    console.log(request.path);
 
     return this.userService.save({
       ...data,
       password: hashed,
-      is_ambassador: false,
+      is_ambassador: request.path === '/api/auth/ambassador/register',
     });
   }
 
-  @Post('admin/login')
+  @Post(['admin/login', 'ambassador/login'])
   async login(
     @Body('email') email: string,
     @Body('password') password: string,
@@ -71,7 +72,7 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @UseInterceptors(ClassSerializerInterceptor)
-  @Get('admin/user')
+  @Get(['admin/user', 'ambassador/user'])
   async user(@Req() req: Request) {
     const cookie = req.cookies['jwt'];
 
@@ -83,7 +84,7 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard)
-  @Get('admin/logout')
+  @Get(['admin/logout', 'ambassador/logout'])
   async logout(@Res({ passthrough: true }) response: Response) {
     response.clearCookie('jwt');
 
@@ -93,7 +94,7 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard)
-  @Put('admin/user/info')
+  @Put(['admin/user/info', 'ambassador/user/info'])
   async updateInfo(
     @Req() req: Request,
     @Body('first_name') first_name: string,
@@ -113,7 +114,7 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard)
-  @Put('admin/user/password')
+  @Put(['admin/user/password', 'ambassador/user/password'])
   async updatePassword(
     @Req() req: Request,
     @Body('password') password: string,
