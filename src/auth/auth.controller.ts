@@ -87,9 +87,19 @@ export class AuthController {
 
     const { id } = await this.jwtService.verifyAsync(cookie);
 
-    const user = await this.userService.findOne({ id });
+    if(req.path === '/api/auth/admin/user'){
+      return await this.userService.findOne({id})
+    }
 
-    return user;
+    const user = await this.userService.findOne({
+      id,
+      relations: ['orders'],
+    });
+
+    return {
+      ...user,
+      revenue: user.revenue,
+    };
   }
 
   @UseGuards(AuthGuard)

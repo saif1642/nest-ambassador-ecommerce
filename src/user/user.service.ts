@@ -11,6 +11,4 @@ export class UserService extends AbstractService {
   ) {
     super(userRepository);
   }
-
-  
 }
